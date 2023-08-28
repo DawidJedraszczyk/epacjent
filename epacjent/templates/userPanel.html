@@ -12,10 +12,5 @@
                 <span>{{ request.user.username }}</span>
             </div>
         </div>
-    {% else %}
-        {% url 'login' as login_url %}
-        <script>
-            window.location.href = "{{ login_url }}";
-        </script>
     {% endif %}
 {% endblock %}

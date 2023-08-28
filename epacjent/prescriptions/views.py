@@ -2,14 +2,16 @@ from django.shortcuts import render
 from .models import Prescription
 import qrcode
 from django.http import HttpResponse
+from django.contrib.auth.decorators import login_required
 
+@login_required(login_url='login')
 def index(request):
     user = request.user
     prescriptions = Prescription.objects.filter(user=user).order_by('created')
     context = {'prescriptions': prescriptions}
     return render(request, 'prescriptions.html', context)
 
-
+@login_required(login_url='login')
 def generate_qr(request, data):
     qr = qrcode.QRCode(
         version=1,

@@ -4,18 +4,22 @@ from .models import Visit
 from datetime import datetime
 from django.contrib import messages
 from django.http import HttpResponse
+from django.contrib.auth.decorators import login_required
 
+@login_required(login_url='login')
 def index(request):
     user = request.user
     visits = Visit.objects.filter(user=user).order_by('visit_date', 'visit_hour')
     context = {'visits': visits}
     return render(request, 'visits.html', context)
 
+@login_required(login_url='login')
 def visit(request, pk):
     visit = get_object_or_404(Visit, id=pk)
     context = {'visit': visit}
     return render(request, 'singleVisit.html', context)
 
+@login_required(login_url='login')
 def createVisit(request):
     form = VisitForm()
     if request.method == "POST":
@@ -46,7 +50,7 @@ def createVisit(request):
     context = {'form': form}
     return render(request, 'createVisit.html', context)
 
-
+@login_required(login_url='login')
 def updateVisit(request, pk):
     visit = get_object_or_404(Visit, id=pk)
     if request.user != visit.user:

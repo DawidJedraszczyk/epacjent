@@ -23,10 +23,5 @@
             {% endif %}
             <a href="{% url 'create-visit' %}" class="text-white bg-blue-700 px-6 py-2">create visit</a>
         </div>
-    {% else %}
-        {% url 'login' as login_url %}
-        <script>
-            window.location.href = "{{ login_url }}";
-        </script>
     {% endif %}
 {% endblock %}
