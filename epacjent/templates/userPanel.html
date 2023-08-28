@@ -9,7 +9,7 @@
         <div class="relative bg-blue-100 w-full h-full items-center justify-center flex">
             <div class="px-10 py-12 bg-blue-700 flex flex-col items-center justify-center text-white">
                 <img src="{% static 'images/user.png' %}" alt="user image" class="mb-4"/>
-                <span>{{ user }}</span>
+                <span>{{ request.user.username }}</span>
             </div>
         </div>
     {% else %}

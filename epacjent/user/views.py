@@ -7,7 +7,6 @@ def index(request):
     context = {}
     return render(request, 'userPanel.html', context)
 
-
 def login_user(request):
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -16,6 +15,8 @@ def login_user(request):
             user = User.objects.get(username=username)
         except:
             messages.error(request, 'user does not exist')
+            context = {}
+            return render(request, 'login.html', context)
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
