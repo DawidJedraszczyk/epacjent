@@ -13,7 +13,7 @@
                         {% if visit.visit_date %}
                             <p class="mt-4">{{visit.visit_date }}</p>
                         {% else %}
-                            <a href="#" class="mt-4 px-6 py-2 bg-blue-200 text-blue-700">wybierz datę</a>
+                            <a href="{% url 'update-visit' visit.id %}" class="mt-4 px-6 py-2 bg-blue-200 text-blue-700">choose date</a>
                         {% endif %}
                     </div>
                 </div>

@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %} create visit {% endblock %}
+{% block title %} choose date {% endblock %}
 {% block content %}
     {% if request.user.is_authenticated %}
         <div class="relative bg-blue-100 w-full h-full items-center justify-center flex">
@@ -14,7 +14,7 @@
                 <form method="POST" action="">
                     {% csrf_token %}
                     {{form.as_p}}
-                    <input type="submit" value="Submit" class="cursor-pointer" />
+                    <input type="submit" value="Submit" class="cursor-pointer"/>
                 </form>
             </div>
         </div>
