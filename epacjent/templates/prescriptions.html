@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %} user panel {% endblock %}
+
+{% block content %}
+    {% if request.user.is_authenticated %}
+        {% include 'navbar.html' %}
+        <div class="relative bg-blue-100 w-full h-full items-center justify-center flex">
+            {% if prescriptions %}
+            {% for prescription in prescriptions %}
+                <div class="w-9/12 flex justify-around">
+                    <div class="px-10 py-12 bg-blue-700 flex flex-col items-center justify-center text-white">
+                            <h2>{{prescription.name}}</h2>
+                            <p>{{prescription.description}}</p>
+                            <p class="mt-4">{{prescription.created }}</p>
+                            <a href="{% url 'generate_qr' prescription.id %}" class="px-6 py-2 bg-blue-100 text-blue-700 mt-4">Generate QR code</a>
+                        </div>
+                </div>
+            {% endfor %}
+            {% endif %}
+        </div>
+    {% else %}
+        {% url 'login' as login_url %}
+        <script>
+            window.location.href = "{{ login_url }}";
+        </script>
+    {% endif %}
+{% endblock %}
