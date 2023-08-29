@@ -1,10 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import VisitForm, VisitDateForm
+from .forms import VisitForm, VisitDateForm, CancelVisitForm
 from .models import Visit
 from datetime import datetime
 from django.contrib import messages
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
+from django.urls import reverse
 
 @login_required(login_url='login')
 def index(request):
@@ -39,16 +40,29 @@ def createVisit(request):
                         visit_date = request.POST.get('visit_date'),
                         visit_hour = request.POST.get('visit_hour'),
                     )
-                    return redirect('visitsPanel')
+                    return HttpResponseRedirect(reverse('visits:visitsPanel', args=()))
             else:
                 Visit.objects.create(
                     user=request.user,
                     name=request.POST.get('name'),
                     description=request.POST.get('description'),
                 )
-                return redirect('visitsPanel')
+                return HttpResponseRedirect(reverse('visits:visitsPanel', args=()))
     context = {'form': form}
     return render(request, 'createVisit.html', context)
+
+@login_required(login_url='login')
+def cancelVisit(request, pk):
+    visit = get_object_or_404(Visit, id=pk)
+    if request.user != visit.user:
+        return HttpResponse('You are not allowed here!')
+    if request.method == "POST":
+        visit.delete()
+        return HttpResponseRedirect(reverse('visits:visitsPanel', args=()))
+    else:
+        form = CancelVisitForm(instance=visit)
+    context = {'form': form}
+    return render(request, 'cancelVisit.html', context)
 
 @login_required(login_url='login')
 def updateVisit(request, pk):
@@ -67,7 +81,7 @@ def updateVisit(request, pk):
                 visit.visit_date = visit_date
                 visit.visit_hour = request.POST.get('visit_hour')
                 visit.save()
-                return redirect('visitsPanel')
+                return HttpResponseRedirect(reverse('visits:visitsPanel', args=()))
             else:
                 messages.error(request, 'Invalid input')
     else:

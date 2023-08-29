@@ -3,6 +3,8 @@ from django.contrib.auth import authenticate, logout, login
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
+
+
 @login_required(login_url='login')
 def index(request):
     context = {}
@@ -21,12 +23,13 @@ def login_user(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            return redirect('userPanel')
+            return redirect('user:userPanel')
         else:
             messages.error(request, 'Username or password valid')
     context = {}
     return render(request, 'login.html', context)
 
+@login_required(login_url='login')
 def logout_user(request):
     logout(request)
-    return redirect('login')
+    return redirect('user:login')

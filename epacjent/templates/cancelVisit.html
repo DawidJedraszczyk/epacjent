@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %} cancel Visit {% endblock %}
+{% block content %}
+    {% if request.user.is_authenticated %}
+        <div class="relative bg-blue-100 w-full h-full items-center justify-center flex">
+            {% include 'navbar.html' %}
+            <div class="">
+                {% if messages %}
+                  {% for message in messages %}
+                    <p class="text-red-400">{{ message }}</p>
+                  {% endfor %}
+                {% endif %}
+                <form method="POST" action="" class="flex flex-cd Fcol w-full">
+                    {% csrf_token %}
+                    Are you sure u want to delete this visit?
+                    <div class="flex ">
+                        <a href="{% url 'visits:visitsPanel' %}" class="bg-white px-4 py-2 ">CANCEL</a>
+                        <input type="submit" value="yes" class="cursor-pointer text-center bg-red-700 px-4 py-2 text-white"/>
+                    </div>
+                </form>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}

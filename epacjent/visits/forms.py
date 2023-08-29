@@ -20,3 +20,8 @@ class VisitDateForm(ModelForm):
             'visit_date': forms.DateInput(attrs={'type': 'date'}),
             'visit_hour': forms.TimeInput(attrs={'type': 'time'}),
         }
+
+class CancelVisitForm(ModelForm):
+    class Meta:
+        model = Visit
+        fields = []
