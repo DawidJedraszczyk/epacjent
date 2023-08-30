@@ -3,10 +3,20 @@
 {% block title %} visits {% endblock %}
 {% block content %}
     {% if request.user.is_authenticated %}
-        <div class="relative bg-blue-100 w-full h-full items-center justify-center flex">
+        <div class="relative bg-blue-100 w-full h-full items-center justify-around flex flex-col">
             {% include 'navbar.html' %}
+            {% for message in messages %}
+                {% if message.tags == 'success' %}
+                    <p class="text-green-700">{{ message }}</p>
+                {% elif message.tags == 'error' %}
+                    <p class="text-red-700">{{ message }}</p>
+                {% else %}
+                    <p>{{ message }}</p>
+                {% endif %}
+            {% endfor %}
             {% if visits %}
                 <div class="w-9/12 flex justify-around">
+
                     {% for visit in visits %}
                         <div class="px-10 py-12 bg-blue-700 flex flex-col items-center justify-center text-white">
                             <h2>{{visit.name}}</h2>

@@ -23,6 +23,7 @@
                         <a href="{% url 'visits:cancel-visit' visit.id %}" class="mt-4 px-6 py-2 bg-red-700 text-white">
                             CANCEL VISIT
                         </a>
+                        <a href="{% url 'visits:send-mail' visit.id %}" class="mt-4 px-6 py-2 bg-blue-200 text-blue-700">Send to mail</a>
                     </div>
                 </div>
             {% else %}

@@ -8,6 +8,7 @@ from django.contrib import messages
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.views import View
+from django.core.mail import send_mail
 
 def checkAccess(host, user):
     if host != user:
@@ -125,3 +126,19 @@ class UpdateVisitView(View):
 
         context = {'form': form}
         return render(request, self.template_name, context)
+
+class Send_mail(View):
+    def get(self, request, pk):
+        try:
+            send_mail(
+            'hello',
+            'message',
+            'autosend.django@gmail.com',
+            [request.user.email],
+            fail_silently=False
+            )
+            messages.success(request, 'Email had been sent.')
+        except:
+            messages.error(request, 'something went wrong!')
+        context = {}
+        return HttpResponseRedirect(reverse('visits:visitsPanel'))
