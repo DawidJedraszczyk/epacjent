@@ -1,77 +1,115 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, get_object_or_404
 from .forms import VisitForm, VisitDateForm, CancelVisitForm
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
 from .models import Visit
 from datetime import datetime
 from django.contrib import messages
 from django.http import HttpResponse, HttpResponseRedirect
-from django.contrib.auth.decorators import login_required
 from django.urls import reverse
+from django.views import View
 
-@login_required(login_url='login')
-def index(request):
-    user = request.user
-    visits = Visit.objects.filter(user=user).order_by('visit_date', 'visit_hour')
-    context = {'visits': visits}
-    return render(request, 'visits.html', context)
+def checkAccess(host, user):
+    if host != user:
+        return HttpResponse('You are not allowed here!')
 
-@login_required(login_url='login')
-def visit(request, pk):
-    visit = get_object_or_404(Visit, id=pk)
-    context = {'visit': visit}
-    return render(request, 'singleVisit.html', context)
 
-@login_required(login_url='login')
-def createVisit(request):
-    form = VisitForm()
-    if request.method == "POST":
-        form = VisitForm(request.POST)
+class Index(View):
+    template_name = "visits.html"
+
+    @method_decorator(login_required(login_url='user:login'))
+    def get(self, request):
+        user = request.user
+        visits = Visit.objects.filter(user=user).order_by('visit_date', 'visit_hour')
+        context = {'visits': visits}
+        return render(request, self.template_name, context)
+
+class VisitView(View):
+    template_name = "singleVisit.html"
+
+    @method_decorator(login_required(login_url='user:login'))
+    def get(self, request, pk):
+        visit = get_object_or_404(Visit, id=pk)
+        context = {'visit': visit}
+        return render(request, self.template_name, context)
+class CreateVisitView(View):
+    template_name = 'createVisit.html'
+    form_class = VisitForm
+
+    @method_decorator(login_required(login_url='user:login'))
+    def get(self, request, *args, **kwargs):
+        form = self.form_class()
+        context = {'form': form}
+        return render(request, self.template_name, context)
+
+    @method_decorator(login_required(login_url='user:login'))
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+
         if form.is_valid():
             visit_date_str = request.POST.get('visit_date')
             if visit_date_str:
                 today = datetime.now().date()
                 visit_date = datetime.strptime(visit_date_str, '%Y-%m-%d').date()
                 if visit_date < today:
-                    messages.error(request, 'valid inputs')
+                    messages.error(request, 'Invalid inputs')
                 else:
                     Visit.objects.create(
                         user=request.user,
-                        name = request.POST.get('name'),
-                        description = request.POST.get('description'),
-                        visit_date = request.POST.get('visit_date'),
-                        visit_hour = request.POST.get('visit_hour'),
+                        name=request.POST.get('name'),
+                        description=request.POST.get('description'),
+                        visit_date=request.POST.get('visit_date'),
+                        visit_hour=request.POST.get('visit_hour'),
                     )
-                    return HttpResponseRedirect(reverse('visits:visitsPanel', args=()))
+                    return HttpResponseRedirect(reverse('visits:visitsPanel'))
             else:
                 Visit.objects.create(
                     user=request.user,
                     name=request.POST.get('name'),
                     description=request.POST.get('description'),
                 )
-                return HttpResponseRedirect(reverse('visits:visitsPanel', args=()))
-    context = {'form': form}
-    return render(request, 'createVisit.html', context)
+                return HttpResponseRedirect(reverse('visits:visitsPanel'))
 
-@login_required(login_url='login')
-def cancelVisit(request, pk):
-    visit = get_object_or_404(Visit, id=pk)
-    if request.user != visit.user:
-        return HttpResponse('You are not allowed here!')
-    if request.method == "POST":
+        context = {'form': form}
+        return render(request, self.template_name, context)
+
+class CancelVisitView(View):
+    template_name = 'cancelVisit.html'
+    form_class = CancelVisitForm
+
+    @method_decorator(login_required(login_url='user:login'))
+    def get(self, request, pk, *args, **kwargs):
+        visit = get_object_or_404(Visit, id=pk)
+        checkAccess(visit.user, request.user)
+        form = self.form_class(instance=visit)
+        context = {'form': form}
+        return render(request, self.template_name, context)
+
+    @method_decorator(login_required(login_url='user:login'))
+    def post(self, request, pk, *args, **kwargs):
+        visit = get_object_or_404(Visit, id=pk)
+        checkAccess(visit.user, request.user)
         visit.delete()
-        return HttpResponseRedirect(reverse('visits:visitsPanel', args=()))
-    else:
-        form = CancelVisitForm(instance=visit)
-    context = {'form': form}
-    return render(request, 'cancelVisit.html', context)
+        return HttpResponseRedirect(reverse('visits:visitsPanel'))
 
-@login_required(login_url='login')
-def updateVisit(request, pk):
-    visit = get_object_or_404(Visit, id=pk)
-    if request.user != visit.user:
-        return HttpResponse('You are not allowed here!')
 
-    if request.method == "POST":
-        form = VisitDateForm(request.POST, instance=visit)
+class UpdateVisitView(View):
+    template_name = 'chooseDate.html'
+    form_class = VisitDateForm
+
+    @method_decorator(login_required(login_url='user:login'))
+    def get(self, request, pk, *args, **kwargs):
+        visit = get_object_or_404(Visit, id=pk)
+        checkAccess(visit.user, request.user)
+        form = self.form_class(instance=visit)
+        context = {'form': form}
+        return render(request, self.template_name, context)
+
+    @method_decorator(login_required(login_url='user:login'))
+    def post(self, request, pk, *args, **kwargs):
+        visit = get_object_or_404(Visit, id=pk)
+        checkAccess(visit.user, request.user)
+        form = self.form_class(request.POST, instance=visit)
         if form.is_valid():
             today = datetime.now().date()
             visit_date_str = request.POST.get('visit_date')
@@ -81,11 +119,9 @@ def updateVisit(request, pk):
                 visit.visit_date = visit_date
                 visit.visit_hour = request.POST.get('visit_hour')
                 visit.save()
-                return HttpResponseRedirect(reverse('visits:visitsPanel', args=()))
+                return HttpResponseRedirect(reverse('visits:visitsPanel'))
             else:
                 messages.error(request, 'Invalid input')
-    else:
-        form = VisitDateForm(instance=visit)
 
-    context = {'form': form}
-    return render(request, 'chooseDate.html', context)
+        context = {'form': form}
+        return render(request, self.template_name, context)

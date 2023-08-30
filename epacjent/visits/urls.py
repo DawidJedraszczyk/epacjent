@@ -1,12 +1,11 @@
-from django.contrib import admin
-from django.urls import path, include
-from visits.views import index, visit, createVisit, updateVisit, cancelVisit
+from django.urls import path
+from visits.views import Index, VisitView, CreateVisitView, UpdateVisitView, CancelVisitView
 
 app_name="visits"
 urlpatterns = [
-    path('', index, name='visitsPanel'),
-    path('<uuid:pk>', visit, name='visit'),
-    path('create-visit', createVisit, name='create-visit'),
-    path('update-visit/<uuid:pk>', updateVisit, name='update-visit'),
-    path('cancel-visit/<uuid:pk>', cancelVisit, name='cancel-visit')
+    path('', Index.as_view(), name='visitsPanel'),
+    path('<uuid:pk>', VisitView.as_view(), name='visit'),
+    path('create-visit', CreateVisitView.as_view(), name='create-visit'),
+    path('update-visit/<uuid:pk>', UpdateVisitView.as_view(), name='update-visit'),
+    path('cancel-visit/<uuid:pk>', CancelVisitView.as_view(), name='cancel-visit')
 ]

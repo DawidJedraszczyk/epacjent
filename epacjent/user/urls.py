@@ -1,10 +1,10 @@
 from django.contrib import admin
 from django.urls import path, include
-from user.views import index, login_user, logout_user
+from user.views import Index, Logout_user, Login_user
 
 app_name='user'
 urlpatterns = [
-    path('', index, name='userPanel'),
-    path('login/', login_user, name='login'),
-    path('logout/', logout_user, name='logout'),
+    path('', Index.as_view(), name='userPanel'),
+    path('login/', Login_user.as_view(), name='login'),
+    path('logout/', Logout_user.as_view(), name='logout'),
 ]
